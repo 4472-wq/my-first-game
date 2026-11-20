@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ExamBreaker — เกมตะลุยโจทย์คณิตศาสตร์ ม.ปลาย 50 ด่าน</title>
+<style>
+  /* ==========================================================================
+     1. DESIGN SYSTEM & CSS VARIABLES (Modern Playful Minimal)
+     ========================================================================== */
+  :root {
+    --bg-main: #F4F7FE;
+    --bg-card: #FFFFFF;
+    --primary: #4F46E5;
+    --primary-hover: #4338CA;
+    --primary-soft: #EEF2FF;
+    --secondary: #06B6D4;
+    --accent-yellow: #F59E0B;
+    --accent-pink: #EC4899;
+    --success: #10B981;
+    --success-bg: #ECFDF5;
+    --danger: #EF4444;
+    --danger-bg: #FEF2F2;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --border-light: #E2E8F0;
+    --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 10px 25px rgba(79, 70, 229, 0.12);
+    --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.1);
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 26px;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", "Sarabun", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 50%, #ECFEFF 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  /* ==========================================================================
+     2. LAYOUT & CONTAINERS
+     ========================================================================== */
+  .app-container {
+    width: 100%;
+    max-width: 860px;
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 18px;
+    border: 1px solid var(--border-light);
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--primary);
+    cursor: pointer;
+  }
+
+  .brand-badge {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .top-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-pill {
+    background: var(--primary-soft);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    background: var(--bg-main);
+    border: 1px solid var(--border-light);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    animation: fadeIn 0.35s ease;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    70% { transform: scale(1.04); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  /* ==========================================================================
+     3. BUTTONS & CARDS
+     ========================================================================== */
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+  }
+
+  .btn {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 14px 24px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: inherit;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+    color: white;
+    box-shadow: 0 5px 0 #3730A3;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: #FFFFFF;
+    color: var(--primary);
+    border: 2px solid var(--primary-soft);
+    box-shadow: 0 4px 0 #E2E8F0;
+  }
+
+  .btn-secondary:hover {
+    background: var(--primary-soft);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 5px 0 #047857;
+  }
+
+  .btn-hint {
+    background: #FEF3C7;
+    color: #B45309;
+    border: 2px solid #FDE68A;
+    box-shadow: 0 4px 0 #FCD34D;
+    padding: 10px 16px;
+    font-size: 0.92rem;
+  }
+
+  .btn-hint:hover {
+    background: #FDE68A;
+  }
+
+  /* ==========================================================================
+     4. START SCREEN
+     ========================================================================== */
+  .hero-section {
+    text-align: center;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .mascot-showcase {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(135deg, #E0E7FF, #CFFAFE);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -6px 14px rgba(79, 70, 229, 0.15), var(--shadow-md);
+    animation: popIn 0.6s ease;
+    position: relative;
+  }
+
+  .hero-title {
+    font-size: 2.3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #4F46E5, #06B6D4, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 540px;
+  }
+
+  .how-to-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    width: 100%;
+    margin: 8px 0;
+    text-align: left;
+  }
+
+  .how-to-item {
+    background: var(--bg-main);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .how-to-item strong {
+    color: var(--primary);
+    font-size: 0.98rem;
+  }
+
+  .how-to-item span {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  .start-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  /* ==========================================================================
+     5. STAGE MAP & CHARACTER GALLERY SCREEN
+     ========================================================================== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: var(--bg-card);
+    padding: 6px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+  }
+
+  .filter-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+
+  .filter-pill {
+    padding: 7px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border-light);
+    background: white;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .filter-pill.active {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 12px;
+  }
+
+  .stage-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    position: relative;
+  }
+
+  .stage-card:hover:not(.locked) {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stage-card.locked {
+    background: #F1F5F9;
+    opacity: 0.72;
+    cursor: not-allowed;
+  }
+
+  .stage-card.cleared {
+    border-color: #A7F3D0;
+    background: linear-gradient(180deg, #FFFFFF 0%, #ECFDF5 100%);
+  }
+
+  .stage-num {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    align-self: flex-start;
+  }
+
+  .stage-card.locked .stage-num {
+    background: #E2E8F0;
+    color: #64748B;
+  }
+
+  .stage-topic {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.3;
+  }
+
+  .stage-stars {
+    font-size: 0.85rem;
+    color: var(--accent-yellow);
+    font-weight: 800;
+  }
+
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .char-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 18px;
+    text-align: center;
+    border: 2px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .char-card.unlocked {
+    border-color: var(--secondary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .char-card.locked {
+    filter: grayscale(1);
+    opacity: 0.65;
+  }
+
+  /* ==========================================================================
+     6. GAMEPLAY SCREEN
+     ========================================================================== */
+  .quiz-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 12px;
+    background: #E2E8F0;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .question-box {
+    background: var(--bg-main);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin: 12px 0 18px;
+    border-left: 5px solid var(--primary);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .options-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .option-btn {
+    background: white;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    text-align: left;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.18s ease;
+    box-shadow: 0 3px 0 #E2E8F0;
+    font-family: inherit;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    transform: translateY(-2px);
+  }
+
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  .option-letter {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--bg-main);
+    color: var(--primary);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    background: var(--success-bg);
+    border-color: var(--success);
+    color: #065F46;
+    box-shadow: 0 4px 0 #A7F3D0;
+    animation: popIn 0.3s ease;
+  }
+
+  .option-btn.correct .option-letter {
+    background: var(--success);
+    color: white;
+  }
+
+  .option-btn.wrong {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+    color: #991B1B;
+    box-shadow: 0 4px 0 #FECACA;
+    animation: shake 0.4s ease;
+  }
+
+  .option-btn.wrong .option-letter {
+    background: var(--danger);
+    color: white;
+  }
+
+  .hint-box {
+    margin-top: 14px;
+    background: #FFFBEB;
+    border: 1px dashed #F59E0B;
+    color: #92400E;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .feedback-panel {
+    margin-top: 18px;
+    padding: 18px;
+    border-radius: var(--radius-md);
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .feedback-panel.correct {
+    background: var(--success-bg);
+    border: 2px solid #6EE7B7;
+  }
+
+  .feedback-panel.wrong {
+    background: var(--danger-bg);
+    border: 2px solid #FCA5A5;
+  }
+
+  .feedback-title {
+    font-weight: 800;
+    font-size: 1.08rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .explanation-text {
+    font-size: 0.96rem;
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.75);
+    padding: 12px;
+    border-radius: 10px;
+    line-height: 1.55;
+  }
+
+  /* ==========================================================================
+     7. RESULT / SUMMARY SCREEN
+     ========================================================================== */
+  .result-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .score-circle {
+    width: 136px;
+    height: 136px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+  }
+
+  .score-percent {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-top: 4px;
+  }
+
+  .stars-display {
+    font-size: 2.2rem;
+    letter-spacing: 6px;
+  }
+
+  .diagnostic-box {
+    width: 100%;
+    background: var(--bg-main);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    text-align: left;
+    border: 1px solid var(--border-light);
+  }
+
+  .diagnostic-box h4 {
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .unlock-banner {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border: 2px solid #F59E0B;
+    color: #92400E;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    width: 100%;
+    animation: popIn 0.5s ease;
+  }
+
+  /* ==========================================================================
+     8. MODAL / ANALYTICS DASHBOARD
+     ========================================================================== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 100;
+  }
+
+  .modal-backdrop.open {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: var(--radius-lg);
+    max-width: 580px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .topic-bar-row {
+    margin-bottom: 12px;
+  }
+
+  .topic-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .topic-bar-bg {
+    height: 10px;
+    background: #E2E8F0;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .topic-bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 99px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- TOP NAVIGATION BAR -->
+  <header class="top-bar">
+    <div class="brand" onclick="App.goHome()" title="กลับหน้าหลัก">
+      <span>🎯 ExamBreaker</span>
+      <span class="brand-badge">คณิต ม.ปลาย</span>
+    </div>
+    <div class="top-controls">
+      <div class="stat-pill" title="ด่านที่ผ่านแล้ว">
+        <span>🏆</span>
+        <span id="topClearedCount">0/50</span>
+      </div>
+      <div class="stat-pill" title="อัตราความถูกต้องเฉลี่ย">
+        <span>📊</span>
+        <span id="topAccuracy">0%</span>
+      </div>
+      <button class="icon-btn" onclick="App.openAnalytics()" title="วิเคราะห์ผลการเรียนรู้">📈</button>
+      <button class="icon-btn" id="soundToggleBtn" onclick="SoundEngine.toggle()" title="เปิด/ปิดเสียง">🔊</button>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       SCREEN 1: START SCREEN (หน้าต้อนรับ)
+       ====================================================================== -->
+  <section id="screen-start" class="screen active">
+    <div class="card hero-section">
+      <div class="mascot-showcase" id="heroMascot"></div>
+      <h1 class="hero-title">ExamBreaker</h1>
+      <p class="hero-subtitle">
+        เกมตะลุยโจทย์คณิตศาสตร์ระดับมัธยมศึกษาตอนปลาย (ม.4–ม.6) ครบทั้ง <strong>50 ด่าน</strong>
+        ฝึกคิดวิเคราะห์อย่างเป็นระบบ ไม่มีจับเวลา เล่นสบายๆ พร้อมเฉลยละเอียดทุกข้อ!
+      </p>
+
+      <div class="how-to-grid">
+        <div class="how-to-item">
+          <strong>1. เลือกด่านท้าทาย (50 ด่าน)</strong>
+          <span>ครอบคลุมเนื้อหา ม.4, ม.5 และ ม.6 เรียงจากพื้นฐานสู่โจทย์ประยุกต์</span>
+        </div>
+        <div class="how-to-item">
+          <strong>2. ตอบถูก ≥ 80% เพื่อผ่านด่าน</strong>
+          <span>แต่ละด่านมี 5 ข้อ ต้องทำถูกอย่างน้อย 4 ข้อ (80%) เพื่อปลดล็อกด่านถัดไป</span>
+        </div>
+        <div class="how-to-item">
+          <strong>3. ตัวช่วย & สะสมตัวละคร</strong>
+          <span>มีคำใบ้ช่วยคิด เฉลยละเอียดทันที และปลดล็อกคู่หูคณิตศาสตร์สุดน่ารัก</span>
+        </div>
+      </div>
+
+      <div class="start-actions">
+        <button class="btn btn-primary" onclick="App.showStageSelect()" style="min-width: 220px; font-size: 1.15rem;">
+          🚀 เริ่มตะลุยโจทย์
+        </button>
+        <button class="btn btn-secondary" onclick="App.openAnalytics()">
+          📊 ดูผลวิเคราะห์รายบท
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SCREEN 2: STAGE & CHARACTER SELECTION (หน้าเลือกด่านและตัวละคร)
+       ====================================================================== -->
+  <section id="screen-stages" class="screen">
+    <div class="tabs">
+      <button class="tab-btn active" id="tabStagesBtn" onclick="App.switchLobbyTab('stages')">🗺️ แผนที่ 50 ด่าน</button>
+      <button class="tab-btn" id="tabCharsBtn" onclick="App.switchLobbyTab('chars')">👾 คลังตัวละคร (<span id="charUnlockCount">1</span>/6)</button>
+    </div>
+
+    <div id="lobby-stages-view">
+      <div class="filter-pills">
+        <button class="filter-pill active" onclick="App.filterStages('ALL', this)">ทั้งหมด (50 ด่าน)</button>
+        <button class="filter-pill" onclick="App.filterStages('ม.4', this)">ม.4 (ด่าน 1–18)</button>
+        <button class="filter-pill" onclick="App.filterStages('ม.5', this)">ม.5 (ด่าน 19–35)</button>
+        <button class="filter-pill" onclick="App.filterStages('ม.6', this)">ม.6 (ด่าน 36–50)</button>
+      </div>
+      <div class="stage-grid" id="stageGrid"></div>
+    </div>
+
+    <div id="lobby-chars-view" style="display:none;">
+      <div class="char-grid" id="charGrid"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SCREEN 3: GAMEPLAY SCREEN (หน้าเล่นเกมตอบคำถาม)
+       ====================================================================== -->
+  <section id="screen-game" class="screen">
+    <div class="card">
+      <div class="quiz-header">
+        <div class="quiz-meta">
+          <span id="quizStageTitle">ด่านที่ 1: เซตพื้นฐาน</span>
+          <span id="quizQuestionCounter">ข้อที่ 1 / 5</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="quizProgressFill" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <span class="stat-pill" id="quizGradeBadge">ระดับชั้น ม.4</span>
+        <button class="btn btn-hint" id="hintBtn" onclick="Game.showHint()">💡 คำใบ้ช่วยคิด</button>
+      </div>
+
+      <div class="question-box" id="questionText">กำลังโหลดโจทย์...</div>
+
+      <div class="hint-box" id="hintBox"></div>
+
+      <div class="options-grid" id="optionsGrid"></div>
+
+      <div class="feedback-panel" id="feedbackPanel">
+        <div class="feedback-title" id="feedbackTitle"></div>
+        <div class="explanation-text" id="explanationText"></div>
+        <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+          <button class="btn btn-primary" id="nextQuestionBtn" onclick="Game.nextQuestion()">ข้อถัดไป ➡️</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px; text-align: center;">
+      <button class="btn btn-secondary" onclick="App.showStageSelect()" style="padding: 10px 18px; font-size: 0.9rem;">
+        ⬅️ ออกจากด่านนี้
+      </button>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SCREEN 4: RESULT / VICTORY SCREEN (หน้าสรุปผลการเรียนรู้)
+       ====================================================================== -->
+  <section id="screen-result" class="screen">
+    <div class="card result-card">
+      <h2 id="resultHeadline" style="font-size: 1.7rem; color: var(--primary);">สรุปผลการทดสอบ</h2>
+      <div class="score-circle">
+        <div class="score-percent" id="resultPercent">100%</div>
+        <div class="score-label" id="resultFraction">ถูก 5 จาก 5 ข้อ</div>
+      </div>
+      <div class="stars-display" id="resultStars">⭐⭐⭐</div>
+
+      <div class="unlock-banner" id="unlockBanner" style="display:none;"></div>
+
+      <div class="diagnostic-box">
+        <h4>🧠 ข้อเสนอแนะและวิเคราะห์ผลการเรียนรู้รายบุคคล</h4>
+        <p id="resultAdvice" style="font-size: 0.95rem; color: var(--text-main); line-height: 1.6;"></p>
+      </div>
+
+      <div class="start-actions">
+        <button class="btn btn-secondary" onclick="Game.retryStage()">🔄 เล่นด่านนี้อีกครั้ง</button>
+        <button class="btn btn-success" id="nextStageBtn" onclick="Game.playNextStage()">▶️ ด่านถัดไป</button>
+        <button class="btn btn-primary" onclick="App.showStageSelect()">🗺️ กลับหน้าเลือกด่าน</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========================================================================
+     MODAL: LEARNING ANALYTICS DASHBOARD (หน้าต่างวิเคราะห์ความก้าวหน้ารวม)
+     ======================================================================== -->
+<div class="modal-backdrop" id="analyticsModal" onclick="if(event.target===this) App.closeAnalytics()">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 style="color:var(--primary); font-size:1.25rem;">📊 แดชบอร์ดวิเคราะห์ผลการเรียนรู้</h3>
+      <button class="icon-btn" onclick="App.closeAnalytics()">✖️</button>
+    </div>
+    <div id="analyticsBody"></div>
+    <div style="margin-top: 20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <button class="btn btn-secondary" onclick="StorageManager.resetAll()" style="color:var(--danger); border-color:#FECACA; font-size:0.85rem; padding:10px 14px;">
+        🗑️ รีเซ็ตสถิติทั้งหมด
+      </button>
+      <button class="btn btn-primary" onclick="App.closeAnalytics()" style="padding:10px 20px; font-size:0.95rem;">
+        ปิดหน้าต่าง
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * ============================================================================
+ * PART A: WEB AUDIO API SOUND ENGINE (ระบบเสียงสังเคราะห์ทำงาน Offline 100%)
+ * ============================================================================
+ */
+const SoundEngine = {
+  ctx: null,
+  enabled: true,
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+
+  toggle() {
+    this.enabled = !this.enabled;
+    document.getElementById('soundToggleBtn').textContent = this.enabled ? '🔊' : '🔇';
+    if (this.enabled) {
+      this.init();
+      this.playClick();
+    }
+  },
+
+  playTone(freq, type, duration, delay = 0, volume = 0.15) {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+
+    gain.gain.setValueAtTime(volume, this.ctx.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(this.ctx.currentTime + delay);
+    osc.stop(this.ctx.currentTime + delay + duration);
+  },
+
+  playClick() {
+    this.playTone(520, 'sine', 0.08, 0, 0.12);
+  },
+
+  playHint() {
+    this.playTone(660, 'triangle', 0.12, 0, 0.12);
+    this.playTone(880, 'triangle', 0.16, 0.09, 0.12);
+  },
+
+  playCorrect() {
+    this.playTone(523.25, 'sine', 0.14, 0, 0.16);     // C5
+    this.playTone(659.25, 'sine', 0.14, 0.09, 0.16);  // E5
+    this.playTone(783.99, 'sine', 0.24, 0.18, 0.18);  // G5
+  },
+
+  playWrong() {
+    this.playTone(300, 'sawtooth', 0.18, 0, 0.12);
+    this.playTone(230, 'sawtooth', 0.26, 0.14, 0.12);
+  },
+
+  playVictory() {
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((n, i) => this.playTone(n, 'triangle', 0.22, i * 0.11, 0.18));
+  }
+};
+
+/**
+ * ============================================================================
+ * PART B: 2D VECTOR CHARACTERS (ตัวละครการ์ตูน SVG น่ารัก ปลดล็อกตามความก้าวหน้า)
+ * ============================================================================
+ */
+const CHARACTERS = [
+  {
+    id: 'char_pi',
+    name: 'น้องพาย (Pi-Bot)',
+    role: 'คู่หูเริ่มต้น • ผู้เชี่ยวชาญพื้นฐาน',
+    unlockStage: 0,
+    color: '#4F46E5',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <circle cx="60" cy="64" r="42" fill="#EEF2FF" stroke="#4F46E5" stroke-width="4"/>
+      <rect x="34" y="46" width="52" height="30" rx="14" fill="#1E293B"/>
+      <circle cx="48" cy="61" r="5" fill="#38BDF8"/>
+      <circle cx="72" cy="61" r="5" fill="#38BDF8"/>
+      <path d="M54 68 Q60 73 66 68" stroke="#38BDF8" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <line x1="60" y1="22" x2="60" y2="10" stroke="#4F46E5" stroke-width="4"/>
+      <circle cx="60" cy="10" r="6" fill="#F59E0B"/>
+    </svg>`
+  },
+  {
+    id: 'char_sigma',
+    name: 'พี่ซิกม่า (Sigma Fox)',
+    role: 'ปลดล็อกเมื่อผ่านด่านที่ 5',
+    unlockStage: 5,
+    color: '#F59E0B',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <polygon points="26,52 38,16 56,42" fill="#F59E0B"/>
+      <polygon points="94,52 82,16 64,42" fill="#F59E0B"/>
+      <circle cx="60" cy="66" r="40" fill="#FBBF24"/>
+      <path d="M24 66 Q60 96 96 66 Q90 102 60 104 Q30 102 24 66" fill="#FFFBEB"/>
+      <circle cx="46" cy="62" r="5" fill="#1E293B"/>
+      <circle cx="74" cy="62" r="5" fill="#1E293B"/>
+      <polygon points="55,72 65,72 60,78" fill="#1E293B"/>
+    </svg>`
+  },
+  {
+    id: 'char_vector',
+    name: 'กัปตันเวกเตอร์ (Vector Owl)',
+    role: 'ปลดล็อกเมื่อผ่านด่านที่ 15',
+    unlockStage: 15,
+    color: '#06B6D4',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <circle cx="60" cy="64" r="42" fill="#06B6D4"/>
+      <circle cx="45" cy="58" r="14" fill="#FFFFFF" stroke="#0E7490" stroke-width="3"/>
+      <circle cx="75" cy="58" r="14" fill="#FFFFFF" stroke="#0E7490" stroke-width="3"/>
+      <circle cx="45" cy="58" r="6" fill="#1E293B"/>
+      <circle cx="75" cy="58" r="6" fill="#1E293B"/>
+      <polygon points="54,70 66,70 60,82" fill="#F59E0B"/>
+      <path d="M30 28 L60 16 L90 28 L60 38 Z" fill="#1E293B"/>
+    </svg>`
+  },
+  {
+    id: 'char_trig',
+    name: 'เจ้าหญิงไซน์ (Sine Cat)',
+    role: 'ปลดล็อกเมื่อผ่านด่านที่ 25',
+    unlockStage: 25,
+    color: '#EC4899',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <polygon points="28,55 34,20 55,42" fill="#F472B6"/>
+      <polygon points="92,55 86,20 65,42" fill="#F472B6"/>
+      <circle cx="60" cy="66" r="40" fill="#FCE7F3" stroke="#EC4899" stroke-width="4"/>
+      <circle cx="46" cy="62" r="5" fill="#1E293B"/>
+      <circle cx="74" cy="62" r="5" fill="#1E293B"/>
+      <path d="M53 74 Q60 80 67 74" stroke="#EC4899" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <polygon points="50,24 60,12 70,24" fill="#FBBF24"/>
+    </svg>`
+  },
+  {
+    id: 'char_calc',
+    name: 'ดร.แคลคูลัส (Limit Bear)',
+    role: 'ปลดล็อกเมื่อผ่านด่านที่ 38',
+    unlockStage: 38,
+    color: '#10B981',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <circle cx="32" cy="34" r="14" fill="#10B981"/>
+      <circle cx="88" cy="34" r="14" fill="#10B981"/>
+      <circle cx="60" cy="66" r="42" fill="#34D399"/>
+      <ellipse cx="60" cy="76" rx="18" ry="14" fill="#ECFDF5"/>
+      <circle cx="46" cy="58" r="5" fill="#1E293B"/>
+      <circle cx="74" cy="58" r="5" fill="#1E293B"/>
+      <circle cx="60" cy="71" r="5" fill="#1E293B"/>
+    </svg>`
+  },
+  {
+    id: 'char_master',
+    name: 'มหาเทพยูคลิด (Grand Master)',
+    role: 'ปลดล็อกเมื่อพิชิตครบ 50 ด่าน',
+    unlockStage: 50,
+    color: '#8B5CF6',
+    svg: `<svg viewBox="0 0 120 120" width="96" height="96">
+      <circle cx="60" cy="64" r="44" fill="#8B5CF6"/>
+      <polygon points="34,26 46,10 60,24 74,10 86,26" fill="#FBBF24"/>
+      <circle cx="46" cy="62" r="6" fill="#FFFFFF"/>
+      <circle cx="74" cy="62" r="6" fill="#FFFFFF"/>
+      <path d="M46 78 Q60 90 74 78" stroke="#FBBF24" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>`
+  }
+];
+
+/**
+ * ============================================================================
+ * PART C: 50-STAGE CURRICULUM & PROCEDURAL + CURATED QUESTION ENGINE
+ * ============================================================================
+ * โครงสร้างหลักสูตร 50 ด่าน (ม.4 - ม.6)
+ * ครูผู้สอนสามารถแก้ไขชื่อบท ระดับชั้น หรือเพิ่มโจทย์เฉพาะเจาะจงใน CUSTOM_QUESTIONS ได้ทันที
+ */
+const STAGES_CONFIG = [
+  // --- ชั้นมัธยมศึกษาปีที่ 4 (ด่าน 1 - 18) ---
+  { id: 1, grade: 'ม.4', topic: 'เซต: สมาชิกและสับเซต', category: 'set', diff: 1 },
+  { id: 2, grade: 'ม.4', topic: 'เซต: ยูเนียน อินเตอร์เซกชัน', category: 'set', diff: 2 },
+  { id: 3, grade: 'ม.4', topic: 'เซต: โจทย์ปัญหาแผนภาพเวนน์', category: 'set', diff: 3 },
+  { id: 4, grade: 'ม.4', topic: 'ตรรกศาสตร์: ค่าความจริงประพจน์', category: 'logic', diff: 1 },
+  { id: 5, grade: 'ม.4', topic: 'ตรรกศาสตร์: สมมูลและนิเสธ', category: 'logic', diff: 2 },
+  { id: 6, grade: 'ม.4', topic: 'ตรรกศาสตร์: ตัวบ่งปริมาณ', category: 'logic', diff: 3 },
+  { id: 7, grade: 'ม.4', topic: 'จำนวนจริง: สมการพหุนาม', category: 'real', diff: 1 },
+  { id: 8, grade: 'ม.4', topic: 'จำนวนจริง: อสมการและช่วงคำตอบ', category: 'real', diff: 2 },
+  { id: 9, grade: 'ม.4', topic: 'จำนวนจริง: ค่าสัมบูรณ์', category: 'real', diff: 3 },
+  { id: 10, grade: 'ม.4', topic: 'ความสัมพันธ์และโดเมน-เรนจ์', category: 'func', diff: 1 },
+  { id: 11, grade: 'ม.4', topic: 'ฟังก์ชันเชิงเส้นและกำลังสอง', category: 'func', diff: 2 },
+  { id: 12, grade: 'ม.4', topic: 'ฟังก์ชันประกอบและอินเวอร์ส', category: 'func', diff: 3 },
+  { id: 13, grade: 'ม.4', topic: 'เลขยกกำลังและสมการเอกซ์โพเนนเชียล', category: 'expo', diff: 1 },
+  { id: 14, grade: 'ม.4', topic: 'ลอการิทึม: สมบัติและการคำนวณ', category: 'expo', diff: 2 },
+  { id: 15, grade: 'ม.4', topic: 'สมการและอสมการลอการิทึม', category: 'expo', diff: 3 },
+  { id: 16, grade: 'ม.4', topic: 'เรขาคณิตวิเคราะห์: ระยะทางและความชัน', category: 'geo', diff: 1 },
+  { id: 17, grade: 'ม.4', topic: 'เรขาคณิตวิเคราะห์: สมการเส้นตรง', category: 'geo', diff: 2 },
+  { id: 18, grade: 'ม.4', topic: 'ภาคตัดกรวย: วงกลมและพาราโบลา', category: 'geo', diff: 3 },
+
+  // --- ชั้นมัธยมศึกษาปีที่ 5 (ด่าน 19 - 35) ---
+  { id: 19, grade: 'ม.5', topic: 'ตรีโกณมิติ: วงกลมหนึ่งหน่วย', category: 'trig', diff: 1 },
+  { id: 20, grade: 'ม.5', topic: 'ตรีโกณมิติ: เอกลักษณ์พื้นฐาน', category: 'trig', diff: 2 },
+  { id: 21, grade: 'ม.5', topic: 'ตรีโกณมิติ: ผลบวกและมุมสองเท่า', category: 'trig', diff: 3 },
+  { id: 22, grade: 'ม.5', topic: 'กฎของไซน์และโคไซน์', category: 'trig', diff: 3 },
+  { id: 23, grade: 'ม.5', topic: 'เมทริกซ์: การบวกและคูณเมทริกซ์', category: 'matrix', diff: 1 },
+  { id: 24, grade: 'ม.5', topic: 'เมทริกซ์: ดีเทอร์มิแนนต์ (det)', category: 'matrix', diff: 2 },
+  { id: 25, grade: 'ม.5', topic: 'เมทริกซ์: อินเวอร์สและระบบสมการ', category: 'matrix', diff: 3 },
+  { id: 26, grade: 'ม.5', topic: 'เวกเตอร์: พิกัดและขนาดเวกเตอร์', category: 'vector', diff: 1 },
+  { id: 27, grade: 'ม.5', topic: 'เวกเตอร์: ผลคูณเชิงสเกลาร์ (Dot)', category: 'vector', diff: 2 },
+  { id: 28, grade: 'ม.5', topic: 'เวกเตอร์: ผลคูณเชิงเวกเตอร์ (Cross)', category: 'vector', diff: 3 },
+  { id: 29, grade: 'ม.5', topic: 'จำนวนเชิงซ้อน: หน่วยจินตภาพ i', category: 'complex', diff: 1 },
+  { id: 30, grade: 'ม.5', topic: 'จำนวนเชิงซ้อน: สังยุคและค่าสัมบูรณ์', category: 'complex', diff: 2 },
+  { id: 31, grade: 'ม.5', topic: 'จำนวนเชิงซ้อน: รูปเชิงขั้ว', category: 'complex', diff: 3 },
+  { id: 32, grade: 'ม.5', topic: 'หลักการนับเบื้องต้น: กฎการคูณ', category: 'prob', diff: 1 },
+  { id: 33, grade: 'ม.5', topic: 'การเรียงสับเปลี่ยน (Permutation)', category: 'prob', diff: 2 },
+  { id: 34, grade: 'ม.5', topic: 'การจัดหมู่ (Combination)', category: 'prob', diff: 2 },
+  { id: 35, grade: 'ม.5', topic: 'ความน่าจะเป็นของเหตุการณ์', category: 'prob', diff: 3 },
+
+  // --- ชั้นมัธยมศึกษาปีที่ 6 (ด่าน 36 - 50) ---
+  { id: 36, grade: 'ม.6', topic: 'ลำดับเลขคณิต', category: 'seq', diff: 1 },
+  { id: 37, grade: 'ม.6', topic: 'ลำดับเรขาคณิต', category: 'seq', diff: 2 },
+  { id: 38, grade: 'ม.6', topic: 'อนุกรมเลขคณิตและเรขาคณิต', category: 'seq', diff: 2 },
+  { id: 39, grade: 'ม.6', topic: 'ลิมิตของลำดับและอนุกรมอนันต์', category: 'seq', diff: 3 },
+  { id: 40, grade: 'ม.6', topic: 'แคลคูลัส: ลิมิตของฟังก์ชัน', category: 'calc', diff: 1 },
+  { id: 41, grade: 'ม.6', topic: 'แคลคูลัส: ความต่อเนื่องของฟังก์ชัน', category: 'calc', diff: 2 },
+  { id: 42, grade: 'ม.6', topic: 'แคลคูลัส: อนุพันธ์ของฟังก์ชันพหุนาม', category: 'calc', diff: 2 },
+  { id: 43, grade: 'ม.6', topic: 'แคลคูลัส: ความชันเส้นสัมผัสเส้นโค้ง', category: 'calc', diff: 3 },
+  { id: 44, grade: 'ม.6', topic: 'แคลคูลัส: ค่าสูงสุด-ต่ำสุดสัมพัทธ์', category: 'calc', diff: 3 },
+  { id: 45, grade: 'ม.6', topic: 'แคลคูลัส: ปริพันธ์ไม่จำกัดเขต', category: 'calc', diff: 2 },
+  { id: 46, grade: 'ม.6', topic: 'แคลคูลัส: พื้นที่ปิดล้อมด้วยเส้นโค้ง', category: 'calc', diff: 3 },
+  { id: 47, grade: 'ม.6', topic: 'สถิติ: ค่ากลางของข้อมูล (Mean/Med)', category: 'stat', diff: 1 },
+  { id: 48, grade: 'ม.6', topic: 'สถิติ: การวัดตำแหน่ง (ควอร์ไทล์)', category: 'stat', diff: 2 },
+  { id: 49, grade: 'ม.6', topic: 'สถิติ: ส่วนเบี่ยงเบนมาตรฐานและความแปรปรวน', category: 'stat', diff: 3 },
+  { id: 50, grade: 'ม.6', topic: 'ตัวแปรสุ่มและการแจกแจงปกติ (Z-score)', category: 'stat', diff: 3 }
+];
+
+/**
+ * คลังสร้างโจทย์อัจฉริยะ (Question Generator)
+ * สร้างโจทย์ 5 ข้อที่ไม่ซ้ำกันต่อด่าน พร้อมตัวเลือกหลอกที่สมเหตุสมผล คำใบ้ และเฉลยละเอียด
+ */
+const QuestionBank = {
+  rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+
+  shuffle(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  },
+
+  buildQuestion(qText, correctAns, wrongList, hint, explanation) {
+    const uniqueWrongs = [...new Set(wrongList.filter(w => String(w) !== String(correctAns)))];
+    while (uniqueWrongs.length < 3) {
+      uniqueWrongs.push(String(Number(correctAns) + this.rand(2, 9) || (uniqueWrongs.length + 1) * 3));
+    }
+    const choices = this.shuffle([String(correctAns), ...uniqueWrongs.slice(0, 3)]);
+    return {
+      question: qText,
+      options: choices,
+      answerIndex: choices.indexOf(String(correctAns)),
+      hint,
+      explanation
+    };
+  },
+
+  generateForStage(stageId) {
+    const stage = STAGES_CONFIG.find(s => s.id === stageId);
+    const questions = [];
+    for (let i = 0; i < 5; i++) {
+      questions.push(this.createByCategory(stage.category, stage.diff, i));
+    }
+    return questions;
+  },
+
+  createByCategory(category, diff, idx) {
+    const r = (a, b) => this.rand(a, b);
+    switch (category) {
+      case 'set': {
+        if (idx % 3 === 0) {
+          const n = r(3, 6);
+          const ans = Math.pow(2, n);
+          return this.buildQuestion(
+            `กำหนดให้เซต A มีสมาชิกทั้งหมด ${n} ตัว จำนวนสับเซตทั้งหมดของเซต A เท่ากับข้อใด`,
+            `${ans} สับเซต`,
+            [`${n * 2} สับเซต`, `${ans - 1} สับเซต`, `${n * n} สับเซต`],
+            `สูตรจำนวนสับเซตทั้งหมดของเซตที่มีสมาชิก n ตัว คือ 2^n`,
+            `จากสูตรจำนวนสับเซต = 2^n เมื่อ n = ${n} จะได้ 2^${n} = ${ans} สับเซต`
+          );
+        } else if (idx % 3 === 1) {
+          const nA = r(15, 25), nB = r(12, 22), nInter = r(4, 10);
+          const nUnion = nA + nB - nInter;
+          return this.buildQuestion(
+            `กำหนดให้ n(A) = ${nA}, n(B) = ${nB} และ n(A ∩ B) = ${nInter} ค่าของ n(A ∪ B) เท่ากับเท่าใด`,
+            `${nUnion}`,
+            [`${nA + nB}`, `${nA + nB + nInter}`, `${Math.abs(nA - nB)}`],
+            `ใช้สูตร n(A ∪ B) = n(A) + n(B) - n(A ∩ B)`,
+            `แทนค่าในสูตร: n(A ∪ B) = ${nA} + ${nB} - ${nInter} = ${nUnion}`
+          );
+        } else {
+          const total = 50, math = r(25, 35), eng = r(20, 30), neither = r(3, 8);
+          const both = math + eng - (total - neither);
+          return this.buildQuestion(
+            `นักเรียนห้องหนึ่งมี ${total} คน ชอบคณิตศาสตร์ ${math} คน ชอบภาษาอังกฤษ ${eng} คน และไม่ชอบทั้งสองวิชา ${neither} คน มีนักเรียนที่ชอบทั้งสองวิชากี่คน`,
+            `${both} คน`,
+            [`${both + 4} คน`, `${total - math} คน`, `${Math.abs(math - eng)} คน`],
+            `หาจำนวนนักเรียนที่ชอบอย่างน้อย 1 วิชาก่อน (50 - ไม่ชอบเลย) แล้วใช้สูตรอินเตอร์เซกชัน`,
+            `ชอบอย่างน้อย 1 วิชา = ${total} - ${neither} = ${total - neither} คน ดังนั้นชอบทั้งสองวิชา = (${math} + ${eng}) - ${total - neither} = ${both} คน`
+          );
+        }
+      }
+
+      case 'logic': {
+        if (idx % 2 === 0) {
+          return this.buildQuestion(
+            `กำหนดให้ประพจน์ p มีค่าความจริงเป็น จริง (T) และ q มีค่าความจริงเป็น เท็จ (F) ประพจน์ (p → q) ∨ ~q มีค่าความจริงเป็นอย่างไร`,
+            `จริง (T)`,
+            [`เท็จ (F)`, `ไม่สามารถสรุปได้`, `เป็นทั้งจริงและเท็จ`],
+            `หาค่าความจริงของ (p → q) และ ~q แยกกันก่อน แล้วนำมาเชื่อมด้วย "หรือ (∨)"`,
+            `p → q คือ T → F ได้ F ส่วน ~q คือ ~F ได้ T เมื่อเชื่อมด้วย ∨ จะได้ F ∨ T ซึ่งมีค่าความจริงเป็น จริง (T)`
+          );
+        } else {
+          return this.buildQuestion(
+            `ประพจน์ในข้อใดสมมูลกับประพจน์ "ถ้าฝนตก แล้วรถติด" (p → q)`,
+            `ถ้ารถไม่ติด แล้วฝนไม่ตก (~q → ~p)`,
+            [`ถ้าฝนไม่ตก แล้วรถไม่ติด (~p → ~q)`, `ถ้ารถติด แล้วฝนตก (q → p)`, `ฝนตก และรถไม่ติด (p ∧ ~q)`],
+            `ประพจน์แบบ "ถ้า...แล้ว..." (p → q) จะสมมูลกับประโยคแย้งสลับที่`,
+            `จากกฎการสมมูล p → q ≡ ~q → ~p จึงตรงกับ "ถ้ารถไม่ติด แล้วฝนไม่ตก"`
+          );
+        }
+      }
+
+      case 'real': {
+        const a = r(2, 6), b = r(1, 5);
+        const sum = a + b, prod = a * b;
+        if (idx % 2 === 0) {
+          return this.buildQuestion(
+            `ผลบวกของคำตอบทั้งหมดของสมการ x² - ${sum}x + ${prod} = 0 เท่ากับเท่าใด`,
+            `${sum}`,
+            [`-${sum}`, `${prod}`, `-${prod}`],
+            `แยกตัวประกอบเป็น (x - a)(x - b) = 0 หรือใช้สูตรผลบวกราก -b/a`,
+            `แยกตัวประกอบได้ (x - ${a})(x - ${b}) = 0 คำตอบคือ ${a} และ ${b} ผลบวกเท่ากับ ${a} + ${b} = ${sum}`
+          );
+        } else {
+          const k = r(3, 8), c = r(2, 6);
+          return this.buildQuestion(
+            `จงหาผลบวกของคำตอบของสมการค่าสัมบูรณ์ |x - ${k}| = ${c}`,
+            `${2 * k}`,
+            [`${k + c}`, `${c * 2}`, `${k}`],
+            `ปลดค่าสัมบูรณ์จะได้ 2 กรณี คือ x - ${k} = ${c} หรือ x - ${k} = -${c}`,
+            `กรณีที่ 1: x = ${k + c}, กรณีที่ 2: x = ${k - c} ผลบวกคำตอบคือ (${k + c}) + (${k - c}) = ${2 * k}`
+          );
+        }
+      }
+
+      case 'func': {
+        const m = r(2, 5), c = r(1, 7), xVal = r(2, 6);
+        const fx = m * xVal + c;
+        if (idx % 2 === 0) {
+          return this.buildQuestion(
+            `กำหนดให้ f(x) = ${m}x + ${c} จงหาค่าของ f(${xVal})`,
+            `${fx}`,
+            [`${m * xVal - c}`, `${m + c + xVal}`, `${xVal * c + m}`],
+            `แทนค่า x = ${xVal} ลงในนิพจน์ ${m}x + ${c}`,
+            `f(${xVal}) = ${m}(${xVal}) + ${c} = ${m * xVal} + ${c} = ${fx}`
+          );
+        } else {
+          const yVal = m * xVal + c;
+          return this.buildQuestion(
+            `กำหนดให้ f(x) = ${m}x + ${c} จงหาค่าของ f⁻¹(${yVal})`,
+            `${xVal}`,
+            [`${yVal}`, `${m * yVal + c}`, `${xVal + c}`],
+            `ค่าของ f⁻¹(${yVal}) คือค่า x ที่ทำให้ f(x) = ${yVal}`,
+            `แก้สมการ ${m}x + ${c} = ${yVal} จะได้ ${m}x = ${yVal - c} ดังนั้น x = ${xVal}`
+          );
+        }
+      }
+
+      case 'expo': {
+        if (idx % 2 === 0) {
+          const base = r(2, 3), exp = r(3, 5);
+          const val = Math.pow(base, exp);
+          return this.buildQuestion(
+            `ค่าของ log_${base}(${val}) เท่ากับเท่าใด`,
+            `${exp}`,
+            [`${base}`, `${val / base}`, `${exp + 1}`],
+            `ถามตัวเองว่า ${base} ยกกำลังอะไรจึงจะได้เท่ากับ ${val}`,
+            `เนื่องจาก ${base}^${exp} = ${val} ดังนั้น log_${base}(${val}) = ${exp}`
+          );
+        } else {
+          const k = r(2, 5);
+          return this.buildQuestion(
+            `ถ้า 2^(x + 1) = ${Math.pow(2, k + 1)} แล้วค่าของ x เท่ากับเท่าใด`,
+            `${k}`,
+            [`${k + 1}`, `${k - 1}`, `${k * 2}`],
+            `ทำฐานทั้งสองข้างให้เป็นฐาน 2 เท่ากัน แล้วจับเลขชี้กำลังมาเท่ากัน`,
+            `${Math.pow(2, k + 1)} = 2^${k + 1} ดังนั้น x + 1 = ${k + 1} จะได้ x = ${k}`
+          );
+        }
+      }
+
+      case 'geo': {
+        const dx = r(3, 8), dy = r(2, 6);
+        const m = r(2, 5), c = r(-4, 6);
+        if (idx % 2 === 0) {
+          const y1 = r(1, 5), x1 = r(1, 5);
+          const x2 = x1 + dx, y2 = y1 + dx * m;
+          return this.buildQuestion(
+            `ความชันของเส้นตรงที่ผ่านจุด (${x1}, ${y1}) และ (${x2}, ${y2}) เท่ากับเท่าใด`,
+            `${m}`,
+            [`${-m}`, `${dx}`, `${m + 1}`],
+            `ใช้สูตรความชัน m = (y₂ - y₁) / (x₂ - x₁)`,
+            `m = (${y2} - ${y1}) / (${x2} - ${x1}) = ${y2 - y1} / ${dx} = ${m}`
+          );
+        } else {
+          const rad = r(3, 7);
+          return this.buildQuestion(
+            `วงกลมที่มีสมการ (x - 2)² + (y + 3)² = ${rad * rad} มีรัศมียาวกี่หน่วย`,
+            `${rad} หน่วย`,
+            [`${rad * rad} หน่วย`, `2 หน่วย`, `3 หน่วย`],
+            `เทียบกับสมการมาตรฐาน (x - h)² + (y - k)² = r²`,
+            `จากสมการ r² = ${rad * rad} ถอดรากที่สองจะได้รัศมี r = ${rad} หน่วย`
+          );
+        }
+      }
+
+      case 'trig': {
+        const bank = [
+          {
+            q: `ค่าของ sin 30° + cos 60° เท่ากับเท่าใด`,
+            a: `1`,
+            w: [`0.5`, `√3`, `0`],
+            h: `sin 30° = 1/2 และ cos 60° = 1/2`,
+            e: `sin 30° + cos 60° = 1/2 + 1/2 = 1`
+          },
+          {
+            q: `ค่าของ sin²45° + cos²45° เท่ากับเท่าใด`,
+            a: `1`,
+            w: [`2`, `1/2`, `√2`],
+            h: `นึกถึงเอกลักษณ์ตรีโกณมิติ sin²θ + cos²θ = 1`,
+            e: `จากเอกลักษณ์ sin²θ + cos²θ = 1 สำหรับทุกมุม θ ดังนั้นคำตอบคือ 1`
+          },
+          {
+            q: `ค่าของ tan 45° + sin 90° เท่ากับเท่าใด`,
+            a: `2`,
+            w: [`1`, `0`, `√3 + 1`],
+            h: `tan 45° = 1 และ sin 90° = 1`,
+            e: `tan 45° + sin 90° = 1 + 1 = 2`
+          }
+        ];
+        const pick = bank[idx % bank.length];
+        return this.buildQuestion(pick.q, pick.a, pick.w, pick.h, pick.e);
+      }
+
+      case 'matrix': {
+        const a = r(2, 6), b = r(1, 4), c = r(1, 3), d = r(3, 7);
+        const det = a * d - b * c;
+        return this.buildQuestion(
+          `กำหนดเมทริกซ์ A = [ [${a}, ${b}], [${c}, ${d}] ] ค่าของ det(A) เท่ากับเท่าใด`,
+          `${det}`,
+          [`${a * d + b * c}`, `${b * c - a * d}`, `${a + d}`],
+          `สูตร det ของเมทริกซ์ 2×2 คือ (คูณลง) - (คูณขึ้น) = ad - bc`,
+          `det(A) = (${a} × ${d}) - (${b} × ${c}) = ${a * d} - ${b * c} = ${det}`
+        );
+      }
+
+      case 'vector': {
+        const x1 = r(1, 4), y1 = r(2, 5), x2 = r(2, 5), y2 = r(1, 4);
+        const dot = x1 * x2 + y1 * y2;
+        return this.buildQuestion(
+          `กำหนด u = [${x1}, ${y1}] และ v = [${x2}, ${y2}] ผลคูณเชิงสเกลาร์ u · v เท่ากับเท่าใด`,
+          `${dot}`,
+          [`${x1 * y2 + y1 * x2}`, `${(x1 + x2) * (y1 + y2)}`, `${dot + 3}`],
+          `นำสมาชิกตำแหน่งเดียวกันมาคูณกันแล้วจับบวกกัน (x₁x₂ + y₁y₂)`,
+          `u · v = (${x1} × ${x2}) + (${y1} × ${y2}) = ${x1 * x2} + ${y1 * y2} = ${dot}`
+        );
+      }
+
+      case 'complex': {
+        const a = r(3, 5), b = r(4, 12);
+        const pairs = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17]];
+        const p = pairs[idx % pairs.length];
+        return this.buildQuestion(
+          `ค่าสัมบูรณ์ของจำนวนเชิงซ้อน z = ${p[0]} + ${p[1]}i (หรือ |z|) เท่ากับเท่าใด`,
+          `${p[2]}`,
+          [`${p[0] + p[1]}`, `${p[2] * p[2]}`, `${Math.abs(p[1] - p[0])}`],
+          `ใช้สูตร |a + bi| = √(a² + b²)`,
+          `|z| = √(${p[0]}² + ${p[1]}²) = √(${p[0]*p[0]} + ${p[1]*p[1]}) = √${p[2]*p[2]} = ${p[2]}`
+        );
+      }
+
+      case 'prob': {
+        if (idx % 2 === 0) {
+          const n = r(5, 7);
+          const ans = (n * (n - 1)) / 2;
+          return this.buildQuestion(
+            `มีจุด ${n} จุดบนเส้นรอบวงกลม จะสามารถลากเส้นตรงเชื่อมจุดทีละ 2 จุด ได้ทั้งหมดกี่เส้น`,
+            `${ans} เส้น`,
+            [`${n * (n - 1)} เส้น`, `${n * 2} เส้น`, `${ans + n} เส้น`],
+            `การเลือกจุด 2 จุดจาก ${n} จุด โดยไม่คำนึงถึงลำดับ ใช้ C(${n}, 2)`,
+            `จำนวนเส้นตรง = C(${n}, 2) = (${n} × ${n - 1}) / 2 = ${ans} เส้น`
+          );
+        } else {
+          return this.buildQuestion(
+            `โยนเหรียญที่เที่ยงตรง 2 เหรียญพร้อมกัน 1 ครั้ง ความน่าจะเป็นที่จะออก "หัวอย่างน้อย 1 เหรียญ" เท่ากับเท่าใด`,
+            `3/4`,
+            [`1/2`, `1/4`, `2/3`],
+            `เขียนแซมเปิลสเปซทั้งหมด 4 กรณี: {HH, HT, TH, TT}`,
+            `เหตุการณ์ที่ออกหัวอย่างน้อย 1 เหรียญ คือ {HH, HT, TH} มี 3 กรณี จากทั้งหมด 4 กรณี จึงตอบ 3/4`
+          );
+        }
+      }
+
+      case 'seq': {
+        const a1 = r(2, 7), d = r(3, 6), n = r(6, 10);
+        const an = a1 + (n - 1) * d;
+        return this.buildQuestion(
+          `ลำดับเลขคณิตมีพจน์แรก a₁ = ${a1} และผลต่างร่วม d = ${d} พจน์ที่ ${n} (a_${n}) มีค่าเท่าใด`,
+          `${an}`,
+          [`${a1 + n * d}`, `${an - d}`, `${a1 * n + d}`],
+          `ใช้สูตรพจน์ทั่วไปของลำดับเลขคณิต aₙ = a₁ + (n - 1)d`,
+          `a_${n} = ${a1} + (${n} - 1)(${d}) = ${a1} + ${(n - 1) * d} = ${an}`
+        );
+      }
+
+      case 'calc': {
+        const k = r(2, 5), p = r(2, 4), x = r(1, 3);
+        const deriv = k * p * Math.pow(x, p - 1);
+        return this.buildQuestion(
+          `กำหนดให้ f(x) = ${k}x^${p} ค่าของอนุพันธ์ f'(${x}) เท่ากับเท่าใด`,
+          `${deriv}`,
+          [`${k * Math.pow(x, p)}`, `${k * p}`, `${deriv + k}`],
+          `ใช้สูตรดิฟพหุนาม d/dx (axⁿ) = a·n·xⁿ⁻¹ แล้วแทนค่า x = ${x}`,
+          `f'(x) = ${k * p}x^${p - 1} เมื่อแทน x = ${x} จะได้ f'(${x}) = ${k * p}(${x})^${p - 1} = ${deriv}`
+        );
+      }
+
+      case 'stat':
+      default: {
+        const base = r(10, 20);
+        const nums = [base - 4, base - 2, base, base + 2, base + 4];
+        return this.buildQuestion(
+          `ข้อมูลชุดหนึ่งประกอบด้วย ${nums.join(', ')} ค่าเฉลี่ยเลขคณิต (Mean) ของข้อมูลชุดนี้คือข้อใด`,
+          `${base}`,
+          [`${base + 2}`, `${base - 2}`, `${base * 5}`],
+          `ค่าเฉลี่ยเลขคณิต = ผลรวมของข้อมูลทั้งหมด ÷ จำนวนข้อมูล (5 ตัว)`,
+          `ผลรวม = ${nums.reduce((a, b) => a + b, 0)} หารด้วย 5 จะได้ค่าเฉลี่ยเลขคณิตเท่ากับ ${base}`
+        );
+      }
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * PART D: LOCALSTORAGE PERSISTENCE & ANALYTICS (ระบบบันทึกความก้าวหน้า)
+ * ============================================================================
+ */
+const StorageManager = {
+  KEY: 'exambreaker_hs_math_v1',
+
+  getDefault() {
+    return {
+      unlockedStage: 1,
+      stageResults: {}, // { stageId: { bestPercent, stars, attempts } }
+      topicStats: {}    // { category: { correct, total } }
+    };
+  },
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      return raw ? { ...this.getDefault(), ...JSON.parse(raw) } : this.getDefault();
+    } catch (e) {
+      return this.getDefault();
+    }
+  },
+
+  save(data) {
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('LocalStorage unavailable');
+    }
+  },
+
+  recordStageComplete(stageId, category, correctCount, totalCount) {
+    const data = this.load();
+    const percent = Math.round((correctCount / totalCount) * 100);
+    const passed = percent >= 80;
+    const stars = percent === 100 ? 3 : percent >= 80 ? 2 : percent >= 60 ? 1 : 0;
+
+    const prev = data.stageResults[stageId] || { bestPercent: 0, stars: 0, attempts: 0 };
+    data.stageResults[stageId] = {
+      bestPercent: Math.max(prev.bestPercent, percent),
+      stars: Math.max(prev.stars, stars),
+      attempts: prev.attempts + 1
+    };
+
+    if (passed && stageId >= data.unlockedStage && stageId < 50) {
+      data.unlockedStage = stageId + 1;
+    }
+
+    if (!data.topicStats[category]) {
+      data.topicStats[category] = { correct: 0, total: 0 };
+    }
+    data.topicStats[category].correct += correctCount;
+    data.topicStats[category].total += totalCount;
+
+    this.save(data);
+    return { percent, passed, stars, unlockedNext: passed && stageId < 50 };
+  },
+
+  resetAll() {
+    if (confirm('ต้องการล้างสถิติและเริ่มเล่นใหม่ตั้งแต่ด่าน 1 ใช่หรือไม่?')) {
+      localStorage.removeItem(this.KEY);
+      App.updateTopStats();
+      App.renderStages();
+      App.closeAnalytics();
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * PART E: GAMEPLAY CONTROLLER (ตรรกะการเล่นเกม)
+ * ============================================================================
+ */
+const Game = {
+  currentStageId: 1,
+  questions: [],
+  qIndex: 0,
+  correctCount: 0,
+  answered: false,
+
+  startStage(stageId) {
+    SoundEngine.playClick();
+    this.currentStageId = stageId;
+    this.questions = QuestionBank.generateForStage(stageId);
+    this.qIndex = 0;
+    this.correctCount = 0;
+
+    const stage = STAGES_CONFIG.find(s => s.id === stageId);
+    document.getElementById('quizStageTitle').textContent = `ด่านที่ ${stage.id}: ${stage.topic}`;
+    document.getElementById('quizGradeBadge').textContent = `ระดับชั้น ${stage.grade}`;
+
+    App.switchScreen('screen-game');
+    this.renderQuestion();
+  },
+
+  renderQuestion() {
+    this.answered = false;
+    const q = this.questions[this.qIndex];
+    const total = this.questions.length;
+
+    document.getElementById('quizQuestionCounter').textContent = `ข้อที่ ${this.qIndex + 1} / ${total}`;
+    document.getElementById('quizProgressFill').style.width = `${((this.qIndex + 1) / total) * 100}%`;
+    document.getElementById('questionText').textContent = q.question;
+
+    // Reset hint & feedback
+    const hintBox = document.getElementById('hintBox');
+    hintBox.style.display = 'none';
+    hintBox.textContent = `💡 คำใบ้: ${q.hint}`;
+    document.getElementById('hintBtn').disabled = false;
+
+    const fbPanel = document.getElementById('feedbackPanel');
+    fbPanel.style.display = 'none';
+    fbPanel.className = 'feedback-panel';
+
+    // Render 4 options
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    const letters = ['ก', 'ข', 'ค', 'ง'];
+
+    q.options.forEach((optText, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-letter">${letters[idx]}</span><span>${optText}</span>`;
+      btn.onclick = () => this.selectAnswer(idx, btn);
+      grid.appendChild(btn);
+    });
+  },
+
+  showHint() {
+    SoundEngine.playHint();
+    document.getElementById('hintBox').style.display = 'block';
+    document.getElementById('hintBtn').disabled = true;
+  },
+
+  selectAnswer(selectedIndex, btnEl) {
+    if (this.answered) return;
+    this.answered = true;
+
+    const q = this.questions[this.qIndex];
+    const isCorrect = selectedIndex === q.answerIndex;
+    const allBtns = document.querySelectorAll('.option-btn');
+
+    allBtns.forEach((b, idx) => {
+      b.disabled = true;
+      if (idx === q.answerIndex) b.classList.add('correct');
+    });
+
+    const fbPanel = document.getElementById('feedbackPanel');
+    const fbTitle = document.getElementById('feedbackTitle');
+
+    if (isCorrect) {
+      this.correctCount++;
+      SoundEngine.playCorrect();
+      fbPanel.className = 'feedback-panel correct';
+      fbTitle.innerHTML = '✅ ถูกต้อง! ยอดเยี่ยมมาก';
+      fbTitle.style.color = '#065F46';
+    } else {
+      btnEl.classList.add('wrong');
+      SoundEngine.playWrong();
+      fbPanel.className = 'feedback-panel wrong';
+      fbTitle.innerHTML = '❌ ยังไม่ถูกนะ มาดูวิธีคิดกัน';
+      fbTitle.style.color = '#991B1B';
+    }
+
+    document.getElementById('explanationText').innerHTML = `<strong>📝 คำอธิบายและวิธีคิด:</strong> ${q.explanation}`;
+    document.getElementById('nextQuestionBtn').textContent =
+      this.qIndex < this.questions.length - 1 ? 'ข้อถัดไป ➡️' : 'ดูสรุปคะแนน 🏁';
+    fbPanel.style.display = 'flex';
+  },
+
+  nextQuestion() {
+    SoundEngine.playClick();
+    if (this.qIndex < this.questions.length - 1) {
+      this.qIndex++;
+      this.renderQuestion();
+    } else {
+      this.finishStage();
+    }
+  },
+
+  finishStage() {
+    const stage = STAGES_CONFIG.find(s => s.id === this.currentStageId);
+    const total = this.questions.length;
+    const result = StorageManager.recordStageComplete(stage.id, stage.category, this.correctCount, total);
+
+    App.updateTopStats();
+    App.switchScreen('screen-result');
+
+    document.getElementById('resultPercent').textContent = `${result.percent}%`;
+    document.getElementById('resultFraction').textContent = `ตอบถูก ${this.correctCount} จาก ${total} ข้อ`;
+
+    const starStr = '⭐'.repeat(result.stars) + '☆'.repeat(3 - result.stars);
+    document.getElementById('resultStars').textContent = starStr;
+
+    const headline = document.getElementById('resultHeadline');
+    const nextBtn = document.getElementById('nextStageBtn');
+    const adviceEl = document.getElementById('resultAdvice');
+    const unlockBanner = document.getElementById('unlockBanner');
+    unlockBanner.style.display = 'none';
+
+    if (result.passed) {
+      SoundEngine.playVictory();
+      headline.textContent = '🎉 ผ่านด่านสำเร็จ!';
+      headline.style.color = 'var(--success)';
+      nextBtn.style.display = stage.id < 50 ? 'inline-flex' : 'none';
+
+      // Check character unlock
+      const unlockedChar = CHARACTERS.find(c => c.unlockStage === stage.id);
+      if (unlockedChar) {
+        unlockBanner.style.display = 'block';
+        unlockBanner.textContent = `🎁 ยินดีด้วย! คุณปลดล็อกตัวละครใหม่: "${unlockedChar.name}"`;
+      } else if (stage.id < 50) {
+        unlockBanner.style.display = 'block';
+        unlockBanner.textContent = `🔓 ปลดล็อกด่านที่ ${stage.id + 1} เรียบร้อยแล้ว!`;
+      }
+
+      adviceEl.textContent = result.percent === 100
+        ? `ยอดเยี่ยมไร้ที่ติ! คุณเข้าใจเนื้อหาเรื่อง "${stage.topic}" อย่างแม่นยำ 100% พร้อมลุยด่านที่ท้าทายขึ้นได้ทันที`
+        : `ทำได้ดีมาก! คุณผ่านเกณฑ์ 80% ในเรื่อง "${stage.topic}" ลองทบทวนข้อที่พลาดเล็กน้อยเพื่อเก็บ 3 ดาวเต็มในรอบถัดไป`;
+    } else {
+      SoundEngine.playWrong();
+      headline.textContent = '💪 ยังไม่ผ่านเกณฑ์ 80%';
+      headline.style.color = 'var(--danger)';
+      nextBtn.style.display = 'none';
+      adviceEl.textContent = `คุณได้ ${result.percent}% (ต้องการอย่างน้อย 80% หรือ 4/5 ข้อเพื่อปลดล็อกด่านถัดไป) แนะนำให้ทบทวนสูตรหลักในเรื่อง "${stage.topic}" และกดปุ่ม "💡 คำใบ้ช่วยคิด" ระหว่างทำโจทย์อีกครั้ง`;
+    }
+  },
+
+  retryStage() {
+    this.startStage(this.currentStageId);
+  },
+
+  playNextStage() {
+    if (this.currentStageId < 50) {
+      this.startStage(this.currentStageId + 1);
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * PART F: UI & NAVIGATION CONTROLLER (ควบคุมหน้าจอ แผนที่ และแดชบอร์ด)
+ * ============================================================================
+ */
+const App = {
+  currentFilter: 'ALL',
+
+  init() {
+    document.getElementById('heroMascot').innerHTML = CHARACTERS[0].svg;
+    this.updateTopStats();
+    this.renderStages();
+    this.renderCharacters();
+  },
+
+  switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  goHome() {
+    SoundEngine.playClick();
+    this.switchScreen('screen-start');
+  },
+
+  showStageSelect() {
+    SoundEngine.playClick();
+    this.renderStages();
+    this.renderCharacters();
+    this.switchScreen('screen-stages');
+  },
+
+  switchLobbyTab(tab) {
+    SoundEngine.playClick();
+    document.getElementById('tabStagesBtn').classList.toggle('active', tab === 'stages');
+    document.getElementById('tabCharsBtn').classList.toggle('active', tab === 'chars');
+    document.getElementById('lobby-stages-view').style.display = tab === 'stages' ? 'block' : 'none';
+    document.getElementById('lobby-chars-view').style.display = tab === 'chars' ? 'grid' : 'none';
+  },
+
+  filterStages(grade, btnEl) {
+    SoundEngine.playClick();
+    this.currentFilter = grade;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    btnEl.classList.add('active');
+    this.renderStages();
+  },
+
+  renderStages() {
+    const data = StorageManager.load();
+    const grid = document.getElementById('stageGrid');
+    grid.innerHTML = '';
+
+    const list = this.currentFilter === 'ALL'
+      ? STAGES_CONFIG
+      : STAGES_CONFIG.filter(s => s.grade === this.currentFilter);
+
+    list.forEach(stage => {
+      const isLocked = stage.id > data.unlockedStage;
+      const res = data.stageResults[stage.id];
+      const isCleared = res && res.bestPercent >= 80;
+
+      const card = document.createElement('div');
+      card.className = `stage-card ${isLocked ? 'locked' : ''} ${isCleared ? 'cleared' : ''}`;
+
+      const starsHtml = isLocked
+        ? '🔒 ล็อกอยู่'
+        : res
+          ? `${'⭐'.repeat(res.stars)}${'☆'.repeat(3 - res.stars)} (${res.bestPercent}%)`
+          : '☆☆☆ พร้อมเล่น';
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="stage-num">ด่าน ${stage.id}</span>
+          <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">${stage.grade}</span>
+        </div>
+        <div class="stage-topic">${stage.topic}</div>
+        <div class="stage-stars">${starsHtml}</div>
+      `;
+
+      if (!isLocked) {
+        card.onclick = () => Game.startStage(stage.id);
+      }
+      grid.appendChild(card);
+    });
+  },
+
+  renderCharacters() {
+    const data = StorageManager.load();
+    const clearedCount = Object.values(data.stageResults).filter(r => r.bestPercent >= 80).length;
+    const grid = document.getElementById('charGrid');
+    grid.innerHTML = '';
+
+    let unlockedTotal = 0;
+    CHARACTERS.forEach(char => {
+      const isUnlocked = clearedCount >= char.unlockStage;
+      if (isUnlocked) unlockedTotal++;
+
+      const card = document.createElement('div');
+      card.className = `char-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+      card.innerHTML = `
+        <div>${char.svg}</div>
+        <div style="font-weight:800; color:var(--text-main);">${char.name}</div>
+        <div style="font-size:0.82rem; color:var(--text-muted);">${char.role}</div>
+        <span class="stat-pill" style="font-size:0.75rem;">
+          ${isUnlocked ? '✅ ปลดล็อกแล้ว' : `🔒 ผ่าน ${char.unlockStage} ด่าน`}
+        </span>
+      `;
+      grid.appendChild(card);
+    });
+
+    document.getElementById('charUnlockCount').textContent = unlockedTotal;
+  },
+
+  updateTopStats() {
+    const data = StorageManager.load();
+    const clearedCount = Object.values(data.stageResults).filter(r => r.bestPercent >= 80).length;
+    document.getElementById('topClearedCount').textContent = `${clearedCount}/50`;
+
+    let totalCorrect = 0, totalQ = 0;
+    Object.values(data.topicStats).forEach(st => {
+      totalCorrect += st.correct;
+      totalQ += st.total;
+    });
+    const avgAcc = totalQ > 0 ? Math.round((totalCorrect / totalQ) * 100) : 0;
+    document.getElementById('topAccuracy').textContent = `${avgAcc}%`;
+  },
+
+  openAnalytics() {
+    SoundEngine.playClick();
+    const data = StorageManager.load();
+    const body = document.getElementById('analyticsBody');
+
+    const catNames = {
+      set: 'เซต (ม.4)',
+      logic: 'ตรรกศาสตร์ (ม.4)',
+      real: 'จำนวนจริง (ม.4)',
+      func: 'ฟังก์ชัน (ม.4)',
+      expo: 'เอกซ์โพเนนเชียลและลอการิทึม (ม.4)',
+      geo: 'เรขาคณิตวิเคราะห์และภาคตัดกรวย (ม.4)',
+      trig: 'ฟังก์ชันตรีโกณมิติ (ม.5)',
+      matrix: 'เมทริกซ์ (ม.5)',
+      vector: 'เวกเตอร์ (ม.5)',
+      complex: 'จำนวนเชิงซ้อน (ม.5)',
+      prob: 'หลักการนับและความน่าจะเป็น (ม.5)',
+      seq: 'ลำดับและอนุกรม (ม.6)',
+      calc: 'แคลคูลัสเบื้องต้น (ม.6)',
+      stat: 'สถิติและตัวแปรสุ่ม (ม.6)'
+    };
+
+    const entries = Object.entries(data.topicStats);
+    if (entries.length === 0) {
+      body.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0;">
+        ยังไม่มีประวัติการทำข้อสอบ ลองเข้าเล่นด่านที่ 1 เพื่อเริ่มเก็บสถิติการเรียนรู้ได้เลย!
+      </p>`;
+    } else {
+      let weakestTopic = null;
+      let lowestPct = 101;
+      let html = '';
+
+      entries.forEach(([cat, st]) => {
+        const pct = Math.round((st.correct / st.total) * 100);
+        if (pct < lowestPct) {
+          lowestPct = pct;
+          weakestTopic = catNames[cat] || cat;
+        }
+        const barColor = pct >= 80 ? 'var(--success)' : pct >= 50 ? 'var(--accent-yellow)' : 'var(--danger)';
+        html += `
+          <div class="topic-bar-row">
+            <div class="topic-bar-label">
+              <span>${catNames[cat] || cat}</span>
+              <span>${pct}% (${st.correct}/${st.total} ข้อ)</span>
+            </div>
+            <div class="topic-bar-bg">
+              <div class="topic-bar-fill" style="width:${pct}%; background:${barColor};"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="diagnostic-box" style="margin-top:16px;">
+          <h4>💡 คำแนะนำเพื่อพัฒนาศักยภาพ</h4>
+          <p style="font-size:0.9rem;">
+            ${lowestPct < 80
+              ? `บทเรียนที่ควรทบทวนเพิ่มเติมเป็นพิเศษคือ <strong>${weakestTopic}</strong> (ความแม่นยำ ${lowestPct}%) แนะนำให้กลับไปฝึกซ้ำในด่านของบทนี้จนได้คะแนนเกิน 80%`
+              : `ยอดเยี่ยมมาก! คุณทำคะแนนเฉลี่ยได้เกิน 80% ในทุกบทเรียนที่ฝึกฝนแล้ว ลองท้าทายด่านระดับสูงต่อไปได้เลย`}
+          </p>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    document.getElementById('analyticsModal').classList.add('open');
+  },
+
+  closeAnalytics() {
+    document.getElementById('analyticsModal').classList.remove('open');
+  }
+};
+
+// เริ่มต้นทำงานเมื่อโหลดหน้าเว็บเสร็จสมบูรณ์
+window.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
